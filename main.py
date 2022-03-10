@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-import uvicorn
+import uvicorn as server
+
 from views import routes
 
 app = FastAPI()
@@ -9,4 +10,4 @@ def configure():
 
 configure()
 if __name__ == '__main__':
-    uvicorn.run(app)
+    server.run(app)

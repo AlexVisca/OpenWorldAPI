@@ -24,7 +24,7 @@ class Connect:
                 port=self.config['MYSQL_PORT'],
                 auth_plugin=self.config['MYSQL_AUTH']
             )
-            return self.connection
+            return self.connection.cursor()
             # --
         except mysql.connector.Error as err:
             if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
@@ -39,21 +39,21 @@ class Connect:
 
 class SQL:
     @staticmethod
-    def version(cursor):
+    def version(cursor: object) -> dict:
         query = "SHOW VARIABLES like 'version';"
         cursor.execute(query)
         result = cursor.fetchone()
         return {"version": result[1]}
 
     @staticmethod
-    def search(cursor, country):
+    def search(cursor: object, country: str) -> tuple:
         query = "SELECT * FROM country WHERE NAME=%s;"
         cursor.execute(query, (country,))
         result = cursor.fetchone()
         return result
     
     @staticmethod
-    def lookup(cursor, city_id):
+    def lookup(cursor: object, city_id: int) -> tuple:
         query = "SELECT * FROM city WHERE ID=%s;"
         cursor.execute(query, (city_id,))
         result = cursor.fetchone()
@@ -107,32 +107,85 @@ class Country:
         return country
 
 
-# class Country:
-#     def __init__(self, uid, name, code, pop):
-#         self.uid: int = uid
-#         self.name: str = name
-#         self.code: str = code
-#         self.pop: int = pop
+class City:
+    def __init__(self, idx, name, code, dist, pop):
+        self.idx: int   = idx
+        self.name: str  = name
+        self.code: str  = code
+        self.dist: str  = dist
+        self.pop: int   = pop
+    
+    @classmethod
+    def construct(cls, config):
+        city = City(
+            idx=config[0], 
+            name=config[1], 
+            code=config[2], 
+            dist=config[3],
+            pop=config[4]
+        )
+        return city
 
-#     @classmethod
-#     def construct(cls, config):
-#         test_country = Country(
-#             uid=config[0], 
-#             name=config[1], 
-#             code=config[2], 
-#             pop=config[3]
-#             )
-#         return test_country
 
+def session():
+    while True:
+        try:
+            with Connect() as cursor:
+                version = SQL.version(cursor)
+            break
+        except Exception as error:
+            print("ERROR:\t ", error)
+            time.sleep(2)
 
+    return version
 
+# == Main runtime ==
 def main():
-    mock_country = (42, 'Canada', 'CAN', 26000000)
-    fake_country = Country.construct(mock_country)
+    version = session() # If cannot connect to database, will await connection
+    sys_out = F"INFO:\t  Database running on MySQL v{version['version']}"
+    print(sys_out)
+    # print(search(query='Canada'))
+
+
+# == Test Runtime ==
+class TestCountry:
+    def __init__(self, uid, name, code, pop):
+        self.uid: int = uid
+        self.name: str = name
+        self.code: str = code
+        self.pop: int = pop
+
+    @classmethod
+    def construct(cls, config):
+        test_country = TestCountry(
+            uid=config[0], 
+            name=config[1], 
+            code=config[2], 
+            pop=config[3]
+            )
+        return test_country
+
+
+class TestProfile(TestCountry):
+    def __init__(self, country: object):
+        super().__init__(**country.__dict__)
+        self.attr: str = "attribute"
+
+    @classmethod
+    def construct(cls):
+        mock_country = (42, 'Canada', 'CAN', 26000000)
+        fake_country = super().construct(mock_country)
+        print(fake_country.__dict__)
+        test_profile = TestProfile(fake_country)
+        return test_profile
+
+
+def test():
+    fake_country = TestProfile.construct()
     print(fake_country.__dict__)
 
 
 
 
 if __name__ == '__main__':
-    main()
+    test()

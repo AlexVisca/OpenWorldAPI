@@ -3,57 +3,24 @@ import time
 import uvicorn as server
 
 
-from database import SQL, Connect, Country
-from views import routes
+# Application imports
+import database as db
+from views import homepage, api
 
 app = FastAPI()
 
 def configure_routers():
-    # app.include_router(router=routes.router)
-    pass
+    app.include_router(router=homepage.router)
+    app.include_router(router=api.router)
 
 configure_routers()
 
-@app.get("/")
-def root():
-    with Connect() as db:
-        cursor = db.cursor()
-        version = SQL.version(cursor)
-    return version
-
-@app.get("/<item_id>")
-def lookup(item_id: int):
-    with Connect() as db:
-        cursor = db.cursor()
-        result = SQL.lookup(cursor, item_id)
-    return result
-
-@app.get("/search")
-def search(query: str):
-    with Connect() as db:
-        cursor = db.cursor()
-        raw_data = SQL.search(cursor, query)
-    result = Country.construct(raw_data)
-    return result.__dict__
-
-def session():
-    while True:
-        try:
-            with Connect() as db:
-                cursor = db.cursor()
-                version = SQL.version(cursor)
-            break
-        except Exception as error:
-            print("Error: ", error)
-            time.sleep(2)
-    return version['version']
 
 # Main runtime
 def main():
-    version = session() # If cannot connect to database, will await connection
-    sys_out = F"INFO:\t  Database running on MySQL v{version}"
+    version = db.session() # If cannot connect to database, will await connection
+    sys_out = F"INFO:\t  Database running on MySQL v{version['version']}"
     print(sys_out)
-    # print(search(query='Canada'))
 
 
 if __name__ == '__main__':

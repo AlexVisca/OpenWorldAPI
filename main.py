@@ -33,7 +33,7 @@ def search(query: str):
     with Connect() as db:
         cursor = db.cursor()
         raw_data = SQL.search(cursor, query)
-        result = Country.construct(raw_data)
+    result = Country.construct(raw_data)
     return result.__dict__
 
 def session():

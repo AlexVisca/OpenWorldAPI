@@ -1,11 +1,14 @@
-from fastapi import FastAPI
-import time
+""" Copyright (C) 2020, 2021 Alex Visca
+
+WebAPI Program
+"""
 import uvicorn as server
+from fastapi import FastAPI
 
 
-# Application imports
-import database as db
-from views import homepage, api
+from routers import homepage, api
+from src import database as db
+
 
 app = FastAPI()
 
@@ -16,11 +19,8 @@ def configure_routers():
 configure_routers()
 
 
-# Main runtime
 def main():
-    version = db.session() # If cannot connect to database, will await connection
-    sys_out = F"INFO:\t  Database running on MySQL v{version['version']}"
-    print(sys_out)
+    db.session()
 
 
 if __name__ == '__main__':

@@ -38,7 +38,7 @@ class CountryProfile(Country):
         with Connect() as cursor:
             raw_data = SQL.search(cursor, query)
             if raw_data is None:
-                raise Exception
+                raise Exception(f"Content '{query}' does not exist")
             
             canada = CountryProfile(raw_data)
             canada.capital = SQL.lookup(cursor, canada.capital_id)
@@ -50,10 +50,10 @@ class CountryProfile(Country):
 class SQL:
     @staticmethod
     def select_index(cursor):
-        query = "SELECT Name, Code FROM country;"
+        query = "SELECT Name, Continent FROM country;"
         cursor.execute(query)
         raw_data = cursor.fetchall()
-        result = [{"Name": country[0], "Code": country[1]} for country in raw_data]
+        result = [{"Name": country[0], "Continent": country[1]} for country in raw_data]
         return result
     
     @staticmethod
@@ -65,10 +65,10 @@ class SQL:
     
     @staticmethod
     def lookup(cursor: object, city_id: int) -> tuple:
-        query = "SELECT * FROM city WHERE ID = %s;"
+        query = "SELECT Name FROM city WHERE ID = %s;"
         cursor.execute(query, (city_id,))
         result = cursor.fetchone()
-        return result[1]
+        return result[0]
 
     @staticmethod
     def select_cities(cursor, country_code):
@@ -84,7 +84,7 @@ def test_main():
         profile = CountryProfile.creator('Canad')
         print(profile)
     except Exception as exc:
-        print({"ERROR": 404})
+        print({"status_code": 404, "message": str(exc)})
 
 
 if __name__ == '__main__':

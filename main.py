@@ -26,6 +26,4 @@ def main():
 if __name__ == '__main__':
     main()
     server.run(
-        "main:app", 
-        reload=True, 
-        access_log=True)
+        "main:app", reload=True, access_log=True)

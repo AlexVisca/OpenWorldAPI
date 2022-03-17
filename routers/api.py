@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status
 
 from src.database import Connect
 from src.models import SQL, CountryProfile
@@ -19,5 +19,7 @@ def search(query: str):
         return profile
 
     except Exception as exc:
-        return {"ERROR": 404}
+        message = {"status_code": 404, "message": str(exc)}
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail=message)
     

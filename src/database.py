@@ -70,7 +70,7 @@ class SQL:
         result = cursor.fetchall()
         return result
 
-# === TEST SUITE ===
+
 # Module methods 
 def query_version(ttl=5):
     timeout = 0
@@ -88,10 +88,11 @@ def query_version(ttl=5):
     return version
 
 # Initialised at runtime
-def session():
+def session(logger):
     version = query_version() # If cannot connect to database, will await connection
     sys_out = F"INFO:\t  Database running on MySQL v{str(version[1])}"
     print(sys_out)
+    logger.info(f"Database running on MySQL v{str(version[1])}")
     # print(type(settings), settings.__dict__)
 
 

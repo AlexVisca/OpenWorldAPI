@@ -5,9 +5,9 @@ WebAPI Program
 import uvicorn as server
 from fastapi import FastAPI
 
-
 from routers import homepage, api
 from src import database as db
+from logs import logger
 
 
 def init_app():
@@ -21,7 +21,8 @@ def init_app():
 
 
 def main():
-    db.session()
+    db.session(
+        logger=logger.config())
     server.run(
         "main:init_app", 
         factory=True,

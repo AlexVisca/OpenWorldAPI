@@ -1,16 +1,13 @@
-# Library
 import time
-# third-party
 import mysql.connector
 from mysql.connector import errorcode
-# application
-from config import CONFIG
+from .config import settings
 
 
 class Connect:
     def __init__(self):
         self.connection: object
-        self.config: dict = CONFIG
+        self.config: dict = settings.__dict__
 
     def __enter__(self):
         """ MySQL connection object
@@ -73,7 +70,7 @@ class SQL:
         result = cursor.fetchall()
         return result
 
-
+# === TEST SUITE ===
 # Module methods 
 def query_version(ttl=5):
     timeout = 0
@@ -95,6 +92,7 @@ def session():
     version = query_version() # If cannot connect to database, will await connection
     sys_out = F"INFO:\t  Database running on MySQL v{str(version[1])}"
     print(sys_out)
+    # print(type(settings), settings.__dict__)
 
 
 # == Main ==

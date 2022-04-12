@@ -10,20 +10,24 @@ from routers import homepage, api
 from src import database as db
 
 
-app = FastAPI()
-
-def configure_routers():
+def init_app():
+    app = FastAPI()
+    # include routers
     app.include_router(router=homepage.router)
     app.include_router(router=api.router)
-
-configure_routers()
+    # TODO: include middleware
+    # --
+    return app
 
 
 def main():
     db.session()
+    server.run(
+        "main:init_app", 
+        factory=True,
+        reload=False, 
+        access_log=True)
 
 
 if __name__ == '__main__':
     main()
-    server.run(
-        "main:app", reload=True, access_log=True)
